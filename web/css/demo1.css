@@ -1,0 +1,401 @@
+
+/* Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. */
+/* SPDX-License-Identifier: MIT-0 */
+
+.fancy-textarea {
+  height: 85%;
+  width: 97%;
+  border: 2px solid #aaa;
+  padding: 10px;
+  border-radius: 0.5em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  transition: all 0.3s ease;
+  background-color: #fff;
+  color: #444;
+}
+
+.fancy-textarea:focus {
+  border-color: #398439;
+  box-shadow: 0 0 0 2px rgba(57, 132, 57, 0.2);
+  outline: none;
+}
+
+.fancy-textarea::placeholder {
+  color: #aaa;
+}
+
+.fancy-textarea:hover {
+  border-color: #777;
+}
+
+/* loading bar */
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  margin-top: 40vh;
+  width: 80px;
+  height: 80px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 33px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #398439;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
+}
+.loadingBar {
+  position: fixed;
+  top: 130px;
+  left: 18px;
+}
+.loading-process {
+  position: fixed;
+  top: 162px;
+  left: 97px;
+}
+
+.LeftLayout {
+  width: 60vw;
+  height: 80%;
+
+  position: fixed;
+  bottom: 0;
+  left: 0;
+}
+.ModelLayout {
+  width: 100%;
+  height: 100%;
+}
+
+.RightLayout {
+  width: 20vw;
+  height: 100%;
+}
+
+   
+
+
+
+.RightLayoutf {
+  width: 20vw;
+  height: 90%;
+  min-width: 300px;
+  position: fixed;
+  bottom: 0;
+  right: 35%;
+}
+.InfoContainer {
+  height: 27vh;
+  min-height: 150px;
+  padding-bottom: 3vh;
+}
+.ToolBoxContainer {
+  display: flex;
+  flex-direction: column;
+
+  height: 52vh;
+  min-height: 300px;
+  background-color: skyblue;
+
+  align-items: center;
+  border-radius: 0.5em;
+}
+.StateLayout {
+  margin-top: 1.8vh;
+  width: 18vw;
+  height: 4vh;
+  min-width: 285px;
+  min-height: 27px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  //background-color: aquamarine;
+  border-radius: 0.5em;
+}
+.stateMessage {
+  font-size: 1vmax;
+}
+.ToolBoxLayout {
+  margin-top: 1.5vh;
+  width: 18vw;
+  height: 3vh;
+  min-width: 285px;
+  min-height: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+.ToolBoxTitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8vmax;
+  width: 5vw;
+  height: 100%;
+  min-width: 70px;
+}
+.ToolBoxBody {
+  margin-left: 0.5vw;
+  width: 17vw;
+  height: 100%;
+  min-width: 210px;
+  display: flex;
+}
+.ToolBoxTypeKey {
+  width: 40%;
+  height: 95%;
+  margin-top: 1px;
+  display: flex;
+  font-size: 0.6vmax;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(205, 235, 248);
+  border-radius: 0.7em;
+}
+
+.ToolBoxTypeValue {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 35%;
+  height: 100%;
+}
+.ToolBoxControlButton {
+  width: 33%;
+  border: 1px solid #aaa;
+  border-radius: 0.5em;
+  box-shadow: 0 1px 0 1px rgba(0, 0, 0, 0.04);
+}
+.ToolBoxActionButton {
+  width: 48%;
+  border: 1px solid #aaa;
+  border-radius: 0.5em;
+  box-shadow: 0 1px 0 1px rgba(0, 0, 0, 0.04);
+}
+.ToolBoxActionSendButton {
+  width: 48%;
+  border: 3px solid #8f8f8f;
+  background-color: #e0e0e0;
+  border-radius: 0.5em;
+  box-shadow: 0 1px 0 1px rgba(94, 94, 255, 0.04);
+  cursor: pointer;
+}
+.ToolBoxMessageBox {
+  margin-top: 1.5vh;
+  width: 23vw;
+  height: 25.5vh;
+  min-width: 285px;
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.ToolBoxCheckLengthBox {
+  margin-left: auto;
+  margin-top: 0.5vh;
+  margin-right: 0.5vw;
+}
+.ToolBoxCheckLength {
+  font-size: 0.5vmax;
+}
+.ToolBoxTextArea {
+  height: 85%;
+  width: 97%;
+  border: 1px solid #aaa;
+  padding-left: 0.5vw;
+  padding-top: 1vh;
+  border-radius: 0.5em;
+  box-shadow: 0 1px 0 1px rgba(0, 0, 0, 0.04);
+}
+
+select {
+  color: #444;
+  background-color: #fff;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  padding-left: 0.5vw;
+  padding-right: 0.5vw;
+  border: 1px solid #aaa;
+  border-radius: 0.5em;
+  box-shadow: 0 1px 0 1px rgba(0, 0, 0, 0.04);
+}
+
+#customVoiceLanguageList {
+  width: 6vw;
+  margin-right: 0.3vw;
+}
+
+input[type='range'] {
+  height: 100%;
+  width: 100%;
+}
+input[type='number'] {
+  height: 90%;
+  width: 80%;
+  padding-left: 0.5vw;
+  border: 1px solid #aaa;
+  border-radius: 0.5em;
+  margin: 0;
+  box-shadow: 0 1px 0 1px rgba(0, 0, 0, 0.04);
+}
+button:active {
+  background-color: darkgray;
+}
+button:hover {
+  opacity: 80%;
+}
+.demoList {
+  width: 100%;
+  margin-top: 5vh;
+  height: 3vh;
+  min-height: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.demoList > button {
+  width: 6vw;
+  min-width: 90px;
+}
+
+/* pop */
+.popModel {
+  margin-top: 3vh;
+  width: 100%;
+  max-height: 10vh;
+}
+.pop-container {
+  border: 1px solid black;
+  border-radius: 0.5em;
+  padding: 10px;
+  display: flex;
+  height: 100%;
+}
+.pop-button {
+  text-align: center;
+  margin-top: auto;
+  margin-bottom: 1vh;
+}
+.errorMessage {
+  margin-top: 6px;
+  margin-bottom: 0;
+  font-size: 1vmax;
+  height: 7vh;
+  overflow: hidden;
+}
+.errorTitle {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 1.3vmax;
+}
+.errorButton {
+  width: min-content;
+  height: min-content;
+}
+/* loading bar */
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 33px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #398439;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
+}
+.loadingBar {
+}
+.loading-process {
+}
