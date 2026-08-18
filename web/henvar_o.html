@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<!-- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. -->
+<!-- SPDX-License-Identifier: MIT-0 -->
+<html>
+<head>
+    <style>
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #232f3e;
+            color: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .tabs {
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+        }
+        .tab {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .main-content {
+            padding: 40px;
+        }
+        .add-trigger {
+            background-color: white;
+            border: 1px solid #0073bb;
+            color: #0073bb;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .env-variables {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+        }
+        .search-box {
+            width: 99%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .env-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .env-table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .edit-button {
+            float: right;
+            background-color: white;
+            border: 1px solid #0073bb;
+            color: #0073bb;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .edit-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .edit-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+        }
+        .variable-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .variable-input-group input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .remove-btn {
+            background-color: white;
+            border: 1px solid #0073bb;
+            color: #0073bb;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .save-btn {
+            background-color: #ff9900;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .cancel-btn {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-variable-btn {
+            background-color: white;
+            border: 1px solid #0073bb;
+            color: #0073bb;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header and Tabs -->
+    <div class="header">
+        <img src="aws-logo.png" alt="AWS" height="30">
+        <div>Admin User</div>
+    </div>
+    <div class="tabs">
+        <div class="tab">Configuration</div>
+    </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- <button class="add-trigger">+ Add trigger</button> -->
+        <div class="env-variables">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Environment variables</h2>
+                <button class="edit-button">Edit</button>
+            </div>
+            <input type="text" class="search-box" placeholder="Find environment variables">
+            <table class="env-table">
+                <!-- Environment variables will be rendered here -->
+            </table>
+        </div>
+    </div>    
+    <!-- Edit Overlay -->
+    <div class="edit-overlay" id="editOverlay">
+        <div class="edit-panel">
+            <h2>Edit environment variables</h2>
+            <p>You can define environment variables as key-value pairs that are accessible from your function code. These are useful to store configuration settings without the need to change function code. <a href="#">Learn more</a></p>
+            <div id="variablesContainer">
+                <!-- Variables will be added here dynamically -->
+            </div>
+            <button class="add-variable-btn" onclick="addVariableRow()">+ Add environment variable</button>
+            <div class="action-buttons">
+                <button class="cancel-btn" onclick="hideEditPanel()">Cancel</button>
+                <button class="save-btn" onclick="saveChanges()">Save</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Replace this with your actual API Gateway endpoint URL
+        const apiEndpoint = '__apiEndpoint__';
+        
+        // Holds the environment variables as an array of { key, value } objects.
+        let environmentVariables = [];
+        
+        // On page load, fetch the latest environment variables from S3 via API Gateway.
+        document.addEventListener('DOMContentLoaded', loadEnvVariables);
+        
+        function loadEnvVariables() {
+            fetch(apiEndpoint, { method: 'GET' })
+            .then(response => response.json())
+            .then(data => {
+                // Assume the API returns either an array or an object with a 'variables' key
+                if (Array.isArray(data)) {
+                    environmentVariables = data;
+                } else if (data.variables) {
+                    environmentVariables = data.variables;
+                } else {
+                    environmentVariables = [];
+                }
+                updateMainTable();
+            })
+            .catch(error => {
+                console.error('Error loading environment variables:', error);
+                // Fallback to default values if necessary.
+                environmentVariables = [
+                    { key: 'Unable to fetch', value: 'Reload page' },
+                    // { key: 'CONFIG_BUCKET', value: 'config-bucket-ao' }
+                ];
+                updateMainTable();
+            });
+        }
+        
+        function showEditPanel() {
+            document.getElementById('editOverlay').style.display = 'block';
+            renderVariableInputs();
+        }
+        
+        function hideEditPanel() {
+            document.getElementById('editOverlay').style.display = 'none';
+        }
+        
+        function renderVariableInputs() {
+            const container = document.getElementById('variablesContainer');
+            container.innerHTML = '';
+            environmentVariables.forEach((variable, index) => {
+                container.appendChild(createVariableRow(variable, index));
+            });
+        }
+
+        function createVariableRow(variable, index) {
+            const div = document.createElement('div');
+            div.className = 'variable-input-group';
+            div.innerHTML = `
+                <input type="text" placeholder="Key" value="${variable.key}" data-index="${index}" class="key-input" onchange="updateVariable(${index}, 'key', this.value)">
+                <input type="text" placeholder="Value" value="${variable.value}" data-index="${index}" class="value-input" onchange="updateVariable(${index}, 'value', this.value)">
+                <button class="remove-btn" onclick="removeVariable(${index})">Remove</button>
+            `;
+            return div;
+        }
+        
+        function updateVariable(index, field, value) {
+            environmentVariables[index][field] = value;
+        }
+
+        function addVariableRow() {
+            environmentVariables.push({ key: '', value: '' });
+            renderVariableInputs();
+        }
+        
+        function removeVariable(index) {
+            environmentVariables.splice(index, 1);
+            renderVariableInputs();
+        }
+        
+        // Save changes locally and then send the updated JSON to S3 via API Gateway.
+        function saveChanges() {
+            const keyInputs = document.querySelectorAll('.key-input');
+            const valueInputs = document.querySelectorAll('.value-input');
+            
+            // Rebuild the environmentVariables array from inputs.
+            environmentVariables = [];
+            for (let i = 0; i < keyInputs.length; i++) {
+                if (keyInputs[i].value && valueInputs[i].value) {
+                    environmentVariables.push({
+                        key: keyInputs[i].value,
+                        value: valueInputs[i].value
+                    });
+                }
+            }
+            
+            updateMainTable();
+            hideEditPanel();
+            
+            // Send the updated variables to S3 via API Gateway (lambda function)
+            fetch(apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ variables: environmentVariables })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Environment variables saved successfully:', data);
+                // Optionally, reload the variables to ensure the UI reflects the saved state.
+                loadEnvVariables();
+            })
+            .catch(error => console.error('Error saving environment variables:', error));
+        }
+        
+        function updateMainTable() {
+            const envTable = document.querySelector('.env-table');
+            if (environmentVariables.length === 0) {
+                envTable.innerHTML = '<tr><td colspan="2">No environment variables found.</td></tr>';
+            } else {
+                envTable.innerHTML = environmentVariables.map(variable => `
+                    <tr>
+                        <td>${variable.key}</td>
+                        <td>${variable.value}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+        
+        // Attach the edit button handler to show the edit overlay.
+        document.querySelector('.edit-button').onclick = showEditPanel;
+    </script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<!-- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. -->
+<!-- SPDX-License-Identifier: MIT-0 -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Base Prompt History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f0f4f8;
+        }
+
+        /* Navigation Styling */
+        .header-container {
+            background-color: #3498db;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+
+        /* Main Content Styling */
+        main {
+            display: flex;
+            flex: 1;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .prompt-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-width: 0;
+        }
+
+        /* Table Styling */
+        .prompt-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .prompt-table th,
+        .prompt-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        .prompt-table th {
+            font-weight: bold;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .date-column {
+            width: 15%;
+            white-space: nowrap;
+        }
+
+        .prompt-column {
+            width: 35%;
+        }
+
+        .answer-column {
+            width: 50%;
+        }
+
+        /* Loading Indicator */
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        footer {
+            background-color: #34495e;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        /* Media Queries for Larger Screens */
+        @media screen and (min-width: 1920px) {
+            main {
+                padding: 2rem 4rem;
+            }
+
+            .prompt-table th,
+            .prompt-table td {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body onload="loadPromptHistory()">
+    <header class="header-container">
+        <div class="header-left">
+               <img src="__logo__" width="100" alt="Logo">
+            <span>Knowledge Base Prompt History</span>
+        </div>
+        <div class="header-right">
+            <nav class="nav-menu">
+           
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="prompt-container">
+            <h2>Prompt History</h2>
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading prompt history...</p>
+            </div>
+            <table class="prompt-table">
+                <thead>
+                    <tr>
+                        <th class="date-column">Date</th>
+                        <th class="prompt-column">Prompt</th>
+                        <th class="answer-column">Answer</th>
+                    </tr>
+                </thead>
+                <tbody id="promptTableBody">
+                    <!-- Prompts will be added here dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <div id="messages"></div>
+    </footer>
+
+    <script>
+        const PROMPT_HISTORY_URL = '__histurl__'; 
+
+
+        // Add active class to current page in navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        async function loadPromptHistory() {
+            const loadingDiv = document.getElementById('loading');
+            const messageDiv = document.getElementById('messages');
+            
+            try {
+                loadingDiv.style.display = 'block';
+                
+                const response = await fetch(PROMPT_HISTORY_URL);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch prompt history');
+                }
+                
+                const data = await response.json();
+		let newData = JSON.parse(data.body);
+		console.log(JSON.parse(data.body));
+                displayPrompts(newData.items);
+                
+            } catch (error) {
+                console.error('Error loading prompt history:', error);
+                showMessage('Failed to load prompt history');
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        function displayPrompts(prompts) {
+            const tableBody = document.getElementById('promptTableBody');
+            tableBody.innerHTML = '';
+
+            prompts.forEach(prompt => {
+                const promptDate = new Date(prompt.timestamp);
+                const formattedDate = `${(promptDate.getMonth() + 1).toString().padStart(2, '0')}/${promptDate.getDate().toString().padStart(2, '0')}/${promptDate.getFullYear()}`;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="date-column">${formattedDate}</td>
+                    <td class="prompt-column">${escapeHtml(prompt.prompt)}</td>
+                    <td class="answer-column">${escapeHtml(prompt.answer_text)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function showMessage(text) {
+            const messageDiv = document.getElementById('messages');
+            messageDiv.textContent = text;
+            messageDiv.style.display = 'block';
+
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
